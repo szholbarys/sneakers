@@ -11,7 +11,7 @@ const props = defineProps({
   vatPrice: Number
 })
 
-const { cart, closeDrawer } = inject('cart')
+const { cart } = inject('cart')
 
 const isCreating = ref(false)
 const orderId = ref(null)
@@ -66,13 +66,13 @@ const buttonDisabled = computed(() => isCreating.value || cartIsEmpty.value)
         <div class="flex gap-2">
           <span>Итого:</span>
           <div class="flex-1 border-b border-dashed"></div>
-          <b>{{ totalPrice }} ₽</b>
+          <b>{{ totalPrice }} тг</b>
         </div>
 
         <div class="flex gap-2">
           <span>Налог 5%:</span>
           <div class="flex-1 border-b border-dashed"></div>
-          <b>{{ vatPrice }} ₽</b>
+          <b>{{ vatPrice }} тг</b>
         </div>
 
         <button

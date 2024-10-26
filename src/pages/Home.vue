@@ -7,6 +7,7 @@ import CardList from '../components/CardList.vue'
 
 const { cart, addToCart, removeFromCart } = inject('cart')
 
+const favorites = ref([])
 const items = ref([])
 
 const filters = reactive({
@@ -30,48 +31,39 @@ const onChangeSearchInput = debounce((event) => {
   filters.searchQuery = event.target.value
 }, 300)
 
-const addToFavorite = async (item) => {
-  try {
-    if (!item.isFavorite) {
-      const obj = {
-        item_id: item.id
-      }
-
-      item.isFavorite = true
-
-      const { data } = await axios.post(`https://604781a0efa572c1.mokky.dev/favorites`, obj)
-
-      item.favoriteId = data.id
-    } else {
-      item.isFavorite = false
-      await axios.delete(`https://604781a0efa572c1.mokky.dev/favorites/${item.favoriteId}`)
-      item.favoriteId = null
+const addToFavorite = (item) => {
+  if (!item.isFavorite) {
+    const favoriteItem = {
+      ...item,
+      favoriteId: Date.now()
     }
-  } catch (err) {
-    console.log(err)
+    favorites.value.push(favoriteItem)
+    item.isFavorite = true
+    item.favoriteId = favoriteItem.favoriteId
+  } else {
+    const index = favorites.value.findIndex((fav) => fav.id === item.id)
+    if (index !== -1) {
+      favorites.value.splice(index, 1)
+    }
+    item.isFavorite = false
+    item.favoriteId = null
   }
+
+  localStorage.setItem('favorites', JSON.stringify(favorites.value))
 }
 
-const fetchFavorites = async () => {
-  try {
-    const { data: favorites } = await axios.get(`https://604781a0efa572c1.mokky.dev/favorites`)
+const initializeFavorites = () => {
+  const storedFavorites = localStorage.getItem('favorites')
+  favorites.value = storedFavorites ? JSON.parse(storedFavorites) : []
 
-    items.value = items.value.map((item) => {
-      const favorite = favorites.find((favorite) => favorite.item_id === item.id)
-
-      if (!favorite) {
-        return item
-      }
-
-      return {
-        ...item,
-        isFavorite: true,
-        favoriteId: favorite.id
-      }
-    })
-  } catch (err) {
-    console.log(err)
-  }
+  items.value = items.value.map((item) => {
+    const favorite = favorites.value.find((fav) => fav.id === item.id)
+    return {
+      ...item,
+      isFavorite: !!favorite,
+      favoriteId: favorite?.favoriteId || null
+    }
+  })
 }
 
 const fetchItems = async () => {
@@ -84,7 +76,7 @@ const fetchItems = async () => {
       params.title = `*${filters.searchQuery}*`
     }
 
-    const { data } = await axios.get(`https://604781a0efa572c1.mokky.dev/items`, {
+    const { data } = await axios.get(`https://abe73b250f6e119f.mokky.dev/items`, {
       params
     })
 
@@ -94,8 +86,10 @@ const fetchItems = async () => {
       favoriteId: null,
       isAdded: false
     }))
+
+    initializeFavorites()
   } catch (err) {
-    console.log(err)
+    console.error('Error fetching items:', err)
   }
 }
 
@@ -104,7 +98,6 @@ onMounted(async () => {
   cart.value = localCart ? JSON.parse(localCart) : []
 
   await fetchItems()
-  await fetchFavorites()
 
   items.value = items.value.map((item) => ({
     ...item,
