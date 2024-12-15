@@ -7,12 +7,20 @@ import App from './App.vue'
 
 import Home from './pages/Home.vue'
 import Favorites from './pages/Favorites.vue'
+import Payment from './pages/Payment.vue'
+import Login from './pages/Login.vue'
+import Register from './pages/Register.vue'
+import Profile from './pages/Profile.vue'
 
 const app = createApp(App)
 
 const routes = [
   { path: '/', name: 'Home', component: Home },
-  { path: '/favorites', name: 'Favorites', component: Favorites }
+  { path: '/favorites', name: 'Favorites', component: Favorites },
+  { path: '/payment', name: 'Payment', component: Payment },
+  { path: '/login', component: Login },
+  { path: '/register', component: Register },
+  { path: '/profile', component: Profile },
 ]
 
 const router = createRouter({

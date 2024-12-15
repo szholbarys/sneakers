@@ -82,6 +82,7 @@ const fetchItems = async () => {
 
     items.value = data.map((obj) => ({
       ...obj,
+      description: obj.description || `This is a ${obj.title} sneaker.`, // Add a default description if none exists
       isFavorite: false,
       favoriteId: null,
       isAdded: false
@@ -108,7 +109,7 @@ onMounted(async () => {
 watch(cart, () => {
   items.value = items.value.map((item) => ({
     ...item,
-    isAdded: false
+    isAdded: cart.value.some((cartItem) => cartItem.id === item.id)
   }))
 })
 

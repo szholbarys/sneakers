@@ -12,7 +12,10 @@
 - Vue Router
 - TailwindCSS
 - Axios
+- Typescript
+- Middleware
 - @formkit/auto-animate
 - Composition API / Options API
 - ESLint
 - Prettier
+- Hooks
